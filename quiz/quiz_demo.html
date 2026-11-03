@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WoZ Quiz Demo</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 2em auto; }
+    .answer { padding: 8px 12px; border: 1px solid #ccc; margin: 6px 0; border-radius: 6px; cursor: pointer; }
+    .woz-highlight { background: #fff3b0; }
+    .woz-reveal-correct { background: #b6f4b6; font-weight: bold; }
+    .next-question { margin-top: 1em; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h1>Gratitude Quiz</h1>
+
+  <div data-question-id="1" class="question">
+    <p>Q1. What is one thing you are grateful for today?</p>
+    <div class="answer" data-correct="false">A. The weather</div>
+    <div class="answer" data-correct="true">B. My friends</div>
+    <div class="answer" data-correct="false">C. My lunch</div>
+    <div class="answer" data-correct="false">D. Traffic</div>
+  </div>
+
+  <div data-question-id="2" class="question">
+    <p>Q2. Gratitude is best practiced…</p>
+    <div class="answer" data-correct="false">A. Once a year</div>
+    <div class="answer" data-correct="true">B. Daily</div>
+    <div class="answer" data-correct="false">C. Never</div>
+  </div>
+
+  <button class="next-question">Next</button>
+
+  <script src="quiz_integration.js"></script>
+</body>
+</html>
