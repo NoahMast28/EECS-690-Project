@@ -315,14 +315,19 @@ sf.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
 prescripts = [
     ("Greeting", "Hello! My name is Nao."),
-    ("Intro to Exercise", "Today, we will do the Three Good Things exercise. So we will take turns sharing three things that we are grateful for."),
-    ("Robot Gratitude 1", "The first thing I am grateful for is this opportunity to interact with you."),
-    ("Prompt 1", "Now why don't you share something you are grateful for."),
-    ("Robot Gratitude 2", "The second thing I am grateful for is the chance to interact with you."),
-    ("Prompt 2", "What is another thing you are grateful for?"),
-    ("Robot Gratitude 3", "The third thing I am grateful for is the technology that lets us talk."),
-    ("Prompt 3", "Please share one last thing you are grateful for."),
-    ("Conclusion", "Thank you for participating. Remember to focus on the good things. Goodbye!"),
+    ("Intro to Exercise", "We will be doing a Trivia quiz together. We will take turns answering each question. Are you ready?"),
+    ("Question 1", "The first thing I am grateful for is this opportunity to interact with you."),
+    ("Answering 1", "Now why don't you share something you are grateful for."),
+    ("Question 2", "The second thing I am grateful for is the chance to interact with you."),
+    ("Answering 2", "What is another thing you are grateful for?"),
+    ("Question 3", "The third thing I am grateful for is the technology that lets us talk."),
+    ("Answering 3", "Please share one last thing you are grateful for."),
+    ("Question 4 (Mistake)", "The third thing I am grateful for is the technology that lets us talk."),
+    ("Apologizing (Serious)", "Please share one last thing you are grateful for."),
+    ("Apologizing (Humorous)", "Please share one last thing you are grateful for."),
+    ("Question 5", "The third thing I am grateful for is the technology that lets us talk."),
+    ("Answering 5", "Please share one last thing you are grateful for."),
+    ("Conclusion", "Thank you for doing the Trivia quiz with me, I had a lot of fun!"),
 ]
 for i, (label, text) in enumerate(prescripts):
     ttk.Button(sf, text=label, command=lambda t=text: say(t)).grid(
