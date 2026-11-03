@@ -161,8 +161,49 @@ def say_dynamic():
     if t:
         say(t)
         dyn_entry.delete(0, tk.END)
-def nod():             send_command("nod")
-def laugh():           send_command("laugh")
+
+
+def nod():
+    # Head nod using ALMotion (existing behaviour, unchanged)
+    send_command("nod")
+
+
+def shake_head():
+    # "No" shake — built-in animation, no custom motion code
+    if tts:
+        try:
+            tts.say("^start(animations/Stand/Gestures/No_3)")
+        except Exception as e:
+            print(f"[ui] shake_head failed: {e}")
+
+
+def wave():
+    # Wave / hello — built-in animation
+    if tts:
+        try:
+            tts.say("^start(animations/Stand/Gestures/Hey_1)")
+        except Exception as e:
+            print(f"[ui] wave failed: {e}")
+
+
+def shrug():
+    # Shrug — built-in animation
+    if tts:
+        try:
+            tts.say("^start(animations/Stand/Gestures/IDontKnow_1)")
+        except Exception as e:
+            print(f"[ui] shrug failed: {e}")
+
+
+def laugh():
+    # Fixed: was referencing undefined `animated_tts`
+    if tts:
+        try:
+            tts.say("^start(animations/Stand/Emotions/Positive/Laugh_1)")
+        except Exception as e:
+            print(f"[ui] laugh failed: {e}")
+
+
 def led_green():       send_command("led", {"color": "00FF00"})
 def led_off():         send_command("led_off")
 def posture_cmd(name): send_command("posture", {"name": name})
@@ -341,12 +382,17 @@ dyn_entry.grid(row=0, column=0, padx=5, pady=5)
 dyn_entry.bind("<Return>", lambda e: say_dynamic())
 ttk.Button(df, text="Send", command=say_dynamic).grid(row=0, column=1, padx=5)
 
-# Social reactions
+# Social reactions (now includes Wave, Shake Head, Shrug)
 rf = ttk.LabelFrame(root, text="Social Reactions", padding=10)
 rf.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 reactions = [
-    ("Nod", nod), ("Laugh", laugh),
-    ("LED Green", led_green), ("LED Off", led_off),
+    ("Nod", nod),
+    ("Shake Head", shake_head),
+    ("Wave", wave),
+    ("Shrug", shrug),
+    ("Laugh", laugh),
+    ("LED Green", led_green),
+    ("LED Off", led_off),
     ("Stand", lambda: posture_cmd("Stand")),
     ("Sit", lambda: posture_cmd("Sit")),
     ("Crouch", lambda: posture_cmd("Crouch")),
