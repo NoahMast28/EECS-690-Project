@@ -1,35 +1,287 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>WoZ Quiz Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trivia Quiz</title>
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 2em auto; }
-    .answer { padding: 8px 12px; border: 1px solid #ccc; margin: 6px 0; border-radius: 6px; cursor: pointer; }
-    .woz-highlight { background: #fff3b0; }
-    .woz-reveal-correct { background: #b6f4b6; font-weight: bold; }
-    .next-question { margin-top: 1em; padding: 8px 16px; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #222;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+    }
+    h1 { margin: 0 0 12px; font-size: 28px; text-align: center; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .intro { text-align: center; color: #666; margin-bottom: 24px; line-height: 1.5; }
+    .progress {
+      text-align: center; color: #888; margin-bottom: 14px;
+      font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .question {
+      font-size: 20px; margin-bottom: 20px; line-height: 1.4; font-weight: 600;
+    }
+    .answers { display: flex; flex-direction: column; gap: 10px; }
+    .answer {
+      padding: 14px 18px;
+      border: 2px solid #e0e3e8;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      background: #fff;
+      font-size: 16px;
+      text-align: left;
+      user-select: none;
+    }
+    .answer:hover:not(.locked) { border-color: #b0b8c4; background: #fafbfc; }
+    .answer.selected { background: #fff3b0; border-color: #f0d000; }
+    .answer.correct { background: #b6f4b6; border-color: #2ecc71; font-weight: 600; }
+    .answer.wrong   { background: #ffb6b6; border-color: #e74c3c; font-weight: 600; }
+    .answer.locked  { cursor: default; }
+    .primary-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 10px;
+      background: #4a7cf7;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .primary-btn:hover:not(:disabled) { background: #3a6ae0; }
+    .primary-btn:disabled { background: #c5cdd8; cursor: not-allowed; }
+    .score-display {
+      font-size: 56px; text-align: center; margin: 24px 0 4px;
+      font-weight: 700; color: #333;
+    }
+    .score-display.positive { color: #2ecc71; }
+    .score-display.negative { color: #e74c3c; }
+    .score-label {
+      text-align: center; color: #888; margin-bottom: 20px;
+      font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .score-message { text-align: center; color: #555; margin-bottom: 8px; font-size: 16px; }
   </style>
 </head>
 <body>
-  <h1>Gratitude Quiz</h1>
+  <div class="card">
+    <!-- Start screen -->
+    <div id="screen-start" class="screen active">
+      <h1>Trivia Quiz</h1>
+      <p class="intro">
+        Test your knowledge of US states.<br>
+        5 questions. +100 for each correct answer, &minus;100 for each wrong.
+      </p>
+      <button class="primary-btn" id="start-btn">Start</button>
+    </div>
 
-  <div data-question-id="1" class="question">
-    <p>Q1. What is one thing you are grateful for today?</p>
-    <div class="answer" data-correct="false">A. The weather</div>
-    <div class="answer" data-correct="true">B. My friends</div>
-    <div class="answer" data-correct="false">C. My lunch</div>
-    <div class="answer" data-correct="false">D. Traffic</div>
+    <!-- Quiz screen -->
+    <div id="screen-quiz" class="screen">
+      <div class="progress" id="progress"></div>
+      <div class="question" id="question-text"></div>
+      <div class="answers" id="answers"></div>
+      <button class="primary-btn" id="primary-btn" disabled>Confirm</button>
+    </div>
+
+    <!-- Results screen -->
+    <div id="screen-results" class="screen">
+      <h1>Quiz Complete</h1>
+      <div class="score-display" id="score-display">0</div>
+      <div class="score-label">Final Score</div>
+      <p class="score-message" id="score-message"></p>
+      <button class="primary-btn" id="restart-btn">Restart</button>
+    </div>
   </div>
 
-  <div data-question-id="2" class="question">
-    <p>Q2. Gratitude is best practiced…</p>
-    <div class="answer" data-correct="false">A. Once a year</div>
-    <div class="answer" data-correct="true">B. Daily</div>
-    <div class="answer" data-correct="false">C. Never</div>
-  </div>
+  <script>
+    const QUESTIONS = [
+      {
+        question: "What is the largest US state by land area?",
+        answers: ["Texas", "California", "Alaska", "Montana"],
+        correct: 2
+      },
+      {
+        question: "Which US state is known as the \u201CSunshine State\u201D?",
+        answers: ["California", "Florida", "Hawaii", "Arizona"],
+        correct: 1
+      },
+      {
+        question: "Which US state was the first to ratify the US Constitution?",
+        answers: ["Virginia", "Delaware", "Pennsylvania", "Massachusetts"],
+        correct: 1
+      },
+      {
+        question: "How many US states share a land border with Canada?",
+        answers: ["12", "13", "14", "15"],
+        correct: 1
+      },
+      {
+        question: "What is the smallest US state by land area?",
+        answers: ["Rhode Island", "Delaware", "Connecticut", "Hawaii"],
+        correct: 0
+      }
+    ];
 
-  <button class="next-question">Next</button>
+    const state = {
+      screen: "start",
+      currentQuestion: 0,
+      selectedIndex: -1,
+      confirmed: false,
+      score: 0
+    };
+
+    const screens = {
+      start: document.getElementById("screen-start"),
+      quiz: document.getElementById("screen-quiz"),
+      results: document.getElementById("screen-results")
+    };
+    const progressEl   = document.getElementById("progress");
+    const questionEl   = document.getElementById("question-text");
+    const answersEl    = document.getElementById("answers");
+    const primaryBtn   = document.getElementById("primary-btn");
+    const startBtn     = document.getElementById("start-btn");
+    const restartBtn   = document.getElementById("restart-btn");
+    const scoreDisplay = document.getElementById("score-display");
+    const scoreMessage = document.getElementById("score-message");
+
+    function showScreen(name) {
+      state.screen = name;
+      Object.entries(screens).forEach(([k, el]) =>
+        el.classList.toggle("active", k === name));
+    }
+
+    function renderQuiz() {
+      const q = QUESTIONS[state.currentQuestion];
+      progressEl.textContent = `Question ${state.currentQuestion + 1} of ${QUESTIONS.length}`;
+      questionEl.textContent = q.question;
+
+      answersEl.innerHTML = "";
+      q.answers.forEach((text, i) => {
+        const div = document.createElement("div");
+        div.className = "answer";
+        div.textContent = text;
+
+        if (state.confirmed) {
+          div.classList.add("locked");
+          if (i === q.correct) div.classList.add("correct");
+          else if (i === state.selectedIndex) div.classList.add("wrong");
+        } else {
+          if (i === state.selectedIndex) div.classList.add("selected");
+          div.addEventListener("click", () => selectAnswer(i));
+        }
+
+        answersEl.appendChild(div);
+      });
+
+      if (!state.confirmed) {
+        primaryBtn.textContent = "Confirm";
+        primaryBtn.disabled = state.selectedIndex < 0;
+      } else {
+        primaryBtn.textContent =
+          (state.currentQuestion === QUESTIONS.length - 1) ? "See Results" : "Next Question";
+        primaryBtn.disabled = false;
+      }
+    }
+
+    function selectAnswer(i) {
+      if (state.confirmed) return;
+      if (state.screen !== "quiz") return;
+      const q = QUESTIONS[state.currentQuestion];
+      if (i < 0 || i >= q.answers.length) return;
+      state.selectedIndex = i;
+      renderQuiz();
+    }
+
+    function confirmAnswer() {
+      if (state.confirmed) return;
+      if (state.screen !== "quiz") return;
+      if (state.selectedIndex < 0) return;
+      const q = QUESTIONS[state.currentQuestion];
+      state.score += (state.selectedIndex === q.correct) ? 100 : -100;
+      state.confirmed = true;
+      renderQuiz();
+    }
+
+    function handlePrimary() {
+      if (!state.confirmed) {
+        confirmAnswer();
+      } else if (state.currentQuestion === QUESTIONS.length - 1) {
+        showResults();
+      } else {
+        state.currentQuestion++;
+        state.selectedIndex = -1;
+        state.confirmed = false;
+        renderQuiz();
+      }
+    }
+
+    function startQuiz() {
+      state.currentQuestion = 0;
+      state.selectedIndex = -1;
+      state.confirmed = false;
+      state.score = 0;
+      showScreen("quiz");
+      renderQuiz();
+    }
+
+    function showStart() {
+      state.currentQuestion = 0;
+      state.selectedIndex = -1;
+      state.confirmed = false;
+      state.score = 0;
+      showScreen("start");
+    }
+
+    function showResults() {
+      showScreen("results");
+      scoreDisplay.textContent = state.score;
+      scoreDisplay.classList.toggle("positive", state.score > 0);
+      scoreDisplay.classList.toggle("negative", state.score < 0);
+      if (state.score >= 300) scoreMessage.textContent = "Excellent work!";
+      else if (state.score > 0) scoreMessage.textContent = "Nice job!";
+      else if (state.score === 0) scoreMessage.textContent = "Right in the middle.";
+      else scoreMessage.textContent = "Keep practicing!";
+    }
+
+    function advance() {
+      if (state.screen === "start") startQuiz();
+      else if (state.screen === "quiz") handlePrimary();
+      else if (state.screen === "results") showStart();
+    }
+
+    startBtn.addEventListener("click", startQuiz);
+    primaryBtn.addEventListener("click", handlePrimary);
+    restartBtn.addEventListener("click", showStart);
+
+    // Public API used by quiz_integration.js
+    window.quiz = {
+      selectAnswer,
+      confirmAnswer,
+      advance,
+      showStart,
+      getState: () => ({ ...state, questions: QUESTIONS })
+    };
+
+    showStart();
+  </script>
 
   <script src="quiz_integration.js"></script>
 </body>
