@@ -18,6 +18,7 @@ command_history = deque(maxlen=MAX_HISTORY)
 command_counter = 0
 quiz_clients = set()
 bridge_clients = set()
+quiz_state = {}
 
 
 class WSClient:
@@ -86,11 +87,13 @@ def status():
     if not _auth_ok():
         return jsonify({"error": "unauthorized"}), 401
     with lock:
+        qs = quiz_state
         return jsonify({
             "command_count": command_counter,
             "quiz_clients": len(quiz_clients),
             "bridge_clients": len(bridge_clients),
             "recent": list(command_history)[-10:],
+            "quiz_state": qs,
         })
 
 
@@ -122,19 +125,23 @@ def _run_ws(ws, client_set, kind):
             raw = ws.receive()
             if raw is None:
                 break
-            # Bridge sends acks: {"id": 5, "status": "done"}
-            if kind == "bridge":
-                try:
-                    ack = json.loads(raw)
-                    cid = ack.get("id")
-                    new_status = ack.get("status", "done")
-                    with lock:
-                        for c in command_history:
-                            if c["id"] == cid:
-                                c["status"] = new_status
-                                break
-                except Exception:
-                    pass
+            try:
+                msg = json.loads(raw)
+            except Exception:
+                continue
+
+            if kind == "bridge" and "id" in msg:
+                cid = msg.get("id")
+                new_status = msg.get("status", "done")
+                with lock:
+                    for c in command_history:
+                        if c["id"] == cid:
+                            c["status"] = new_status
+                            break
+            elif kind == "quiz" and msg.get("type") == "state":
+                global quiz_state
+                with lock:
+                    quiz_state = msg.get("state", {})
     except Exception:
         pass
     finally:
