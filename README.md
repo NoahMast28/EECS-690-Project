@@ -1,3 +1,33 @@
+# NAO Wizard-of-Oz Trivia System
+
+A three-part remote-control system that lets an operator secretly guide a NAO robot and a web-based trivia quiz in real time, without the quiz participant knowing.
+
+### Architecture
+
+All traffic flows through a cloud proxy:
+
+- **Proxy server** (`proxy/proxy_server.py`, deployed on Render) — a Flask app that relays JSON commands between the operator and the quiz/bridge via HTTPS POST and WebSockets. It holds the most recent quiz state so the operator can see what the participant is doing, and it authenticates every request with a shared Bearer token.
+
+- **NAO bridge** (`bridge/nao_bridge.py`, runs on the robot's LAN) — connects to the proxy over a WebSocket and translates incoming commands (`say`, `nod`, `led`, `posture`, etc.) into NAOqi API calls on the robot.
+
+- **Operator GUI** (`controller/nao_woz_gui.py`, Tkinter) — the operator's control panel. Sends pre-scripted or free-typed speech to the robot, triggers built-in gestures (nod, shake head, wave, shrug, laugh), controls face LEDs and posture, and mirrors the quiz in real time: shows the current question and answer options (correct one starred), highlights selections, confirms answers, and advances questions — all in sync with what the participant sees.
+
+- **Quiz web page** (`quiz/quiz_demo.html` + `quiz/quiz_integration.js`) — a self-contained five-question US-states trivia quiz with start screen, one-question-at-a-time layout, answer selection, confirm/next flow, scoring (+100/−100), and a final results screen. A small integration script opens a WebSocket to the proxy, reports its current state on every change, and applies incoming operator commands (highlight, confirm, advance, reveal) to the live DOM.
+
+### Data flow
+
+Operator clicks → GUI POSTs command to proxy → proxy broadcasts to the right client(s) → NAO speaks/gestures, and/or the quiz page updates.
+
+In the reverse direction, the quiz page pushes its state to the proxy every 300 ms, and the GUI polls `/api/status` every 200 ms to render an exact mirror of the participant's screen.
+
+### Result
+
+A low-latency WoZ setup where the operator can drive both a physical robot and a live web quiz from a single window, on separate machines, over the public internet, without touching the quiz participant's machine or the school's hosting.
+
+# Brief Demonstration Video
+
+[![Watch the video](https://youtube.com/shorts/pouMCTpRlOM?feature=share)](https://youtube.com/shorts/pouMCTpRlOM?feature=share)
+
 # NAO Wizard-of-Oz Demo — Setup Guide
 
 This guide covers the two machines that drive the live demo:
