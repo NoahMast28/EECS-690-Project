@@ -117,7 +117,7 @@ Set the three environment variables and start the bridge:
 ```bash
 cd EECS-690-Project
 export PROXY_URL="https://nao-proxy.onrender.com"
-export PROXY_TOKEN="{PROXY_TOKEN}"
+export PROXY_TOKEN="PROXY_TOKEN"
 export NAO_IP="10.117.35.236"
 python3 bridge/nao_bridge.py
 ```
@@ -169,7 +169,7 @@ The proxy should show a connected quiz client now:
 Ensure Tkinter is installed on your machine.
 
 For Ubuntu:
-```bash
+```bashexport NAO_IP="10.117.35.236"
 sudo apt install python3-tk
 ```
 
@@ -191,8 +191,6 @@ cd EECS-690-Project
 python3 -m pip install -r controller/requirements.txt
 ```
 
-> If you ever run the controller on Ubuntu instead, the Tkinter package is `python3-tk` (`sudo apt install python3-tk`).
-
 ### Each session
 
 ```bash
@@ -203,7 +201,7 @@ python3 controller/nao_woz_gui.py
 The window opens with all action buttons **disabled**. In the **Proxy Connection** frame, enter:
 
 - **Proxy URL:** `https://nao-proxy.onrender.com`
-- **Token:** `{PROXY_TOKEN}`
+- **Token:** `PROXY_TOKEN`
 
 Click **Connect**. The status label should turn green. And you should see a start quiz option.
 
