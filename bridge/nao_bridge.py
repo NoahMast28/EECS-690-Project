@@ -17,11 +17,15 @@ TOKEN     = os.environ.get("PROXY_TOKEN", "change-me-in-production")
 NAO_IP    = os.environ.get("NAO_IP", "192.168.1.100")
 
 session  = None
-tts = motion = posture = leds = None
+tts      = None
+motion   = None
+posture  = None
+leds     = None
+anim     = None
 
 
 def connect_nao():
-    global session, tts, motion, posture, leds
+    global session, tts, motion, posture, leds, anim
     print(f"[bridge] connecting to NAO at {NAO_IP}:9559 ...")
     session = qi.Session()
     session.connect(f"tcp://{NAO_IP}:9559")
@@ -29,36 +33,54 @@ def connect_nao():
     motion  = session.service("ALMotion")
     posture = session.service("ALRobotPosture")
     leds    = session.service("ALLeds")
+    anim    = session.service("ALAnimationPlayer")
     motion.wakeUp()
     print("[bridge] NAO ready")
+
+
+def run_animation(path: str):
+    """Play a pre-recorded animation by its full path, non-blocking."""
+    anim.run(path, _async=True)
 
 
 def execute(action: str, payload: dict):
     try:
         if action == "say":
             tts.say(payload.get("text", ""))
+
         elif action == "nod":
+            # Explicitly programmed head nod (kept as-is)
             motion.angleInterpolation(
                 ["HeadPitch"], [[0.2, -0.2, 0.0]], [[0.5, 1.0, 1.5]], True)
+
         elif action == "shake_head":
-            tts.say("^start(animations/Stand/Gestures/No_3)")
+            run_animation("animations/Stand/Gestures/No_3")
+
         elif action == "wave":
-            tts.say("^start(animations/Stand/Gestures/Hey_1)")
+            run_animation("animations/Stand/Gestures/Hey_1")
+
         elif action == "shrug":
-            tts.say("^start(animations/Stand/Gestures/IDontKnow_1)")
+            run_animation("animations/Stand/Gestures/IDontKnow_1")
+
         elif action == "laugh":
-            tts.say("^start(animations/Stand/Emotions/Positive/Laugh_1)")
+            run_animation("animations/Stand/Emotions/Positive/Laugh_1")
+
         elif action == "led":
             color = payload.get("color", "00FF00").lstrip("#")
             leds.fadeRGB("FaceLeds", int(color, 16), 1.0)
+
         elif action == "led_off":
             leds.off("FaceLeds")
+
         elif action == "posture":
             posture.goToPosture(payload.get("name", "Stand"), 0.5)
+
         elif action == "stop":
             motion.stopMove()
+
         else:
             return False, f"unknown action: {action}"
+
         return True, "ok"
     except Exception as e:
         return False, str(e)
