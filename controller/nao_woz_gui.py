@@ -32,6 +32,106 @@ QUESTIONS = [
         "answers": ["Rhode Island", "Delaware", "Connecticut", "Hawaii"],
         "correct": 0,
     },
+    {
+        "question": "Which US state is home to the Grand Canyon?",
+        "answers": ["Nevada", "Utah", "Arizona", "New Mexico"],
+        "correct": 2,
+    },
+    {
+        "question": "What is the capital of New York?",
+        "answers": ["New York City", "Albany", "Buffalo", "Syracuse"],
+        "correct": 1,
+    },
+    {
+        "question": "Which US state borders only one other US state?",
+        "answers": ["Maine", "Rhode Island", "Delaware", "Vermont"],
+        "correct": 0,
+    },
+    {
+        "question": "Mount Rushmore is located in which US state?",
+        "answers": ["Wyoming", "Montana", "South Dakota", "North Dakota"],
+        "correct": 2,
+    },
+    {
+        "question": "Which US state has the largest population?",
+        "answers": ["Texas", "Florida", "New York", "California"],
+        "correct": 3,
+    },
+    {
+        "question": "Which US state is the only one that commercially produces coffee?",
+        "answers": ["Hawaii", "Florida", "Louisiana", "Texas"],
+        "correct": 0,
+    },
+    {
+        "question": 'Which US state is nicknamed the "Lone Star State"?',
+        "answers": ["Oklahoma", "Arizona", "Texas", "New Mexico"],
+        "correct": 2,
+    },
+    {
+        "question": "New Orleans is located in which US state?",
+        "answers": ["Alabama", "Mississippi", "Louisiana", "Arkansas"],
+        "correct": 2,
+    },
+    {
+        "question": "Which US state has the longest coastline?",
+        "answers": ["California", "Florida", "Maine", "Alaska"],
+        "correct": 3,
+    },
+    {
+        "question": "What is the capital of California?",
+        "answers": ["Los Angeles", "San Francisco", "Sacramento", "San Diego"],
+        "correct": 2,
+    },
+    {
+        "question": "Which US state was the last to join the Union?",
+        "answers": ["Alaska", "Hawaii", "New Mexico", "Arizona"],
+        "correct": 1,
+    },
+    {
+        "question": "The Statue of Liberty is located in which state?",
+        "answers": ["New Jersey", "New York", "Connecticut", "Pennsylvania"],
+        "correct": 1,
+    },
+    {
+        "question": 'Which US state is known as the "Peach State"?',
+        "answers": ["South Carolina", "Alabama", "Georgia", "Tennessee"],
+        "correct": 2,
+    },
+    {
+        "question": "What is the largest city in Illinois?",
+        "answers": ["Springfield", "Chicago", "Peoria", "Rockford"],
+        "correct": 1,
+    },
+    {
+        "question": "Which US state contains the majority of Yellowstone National Park?",
+        "answers": ["Wyoming", "Montana", "Idaho", "Colorado"],
+        "correct": 0,
+    },
+    {
+        "question": "What is the capital of Texas?",
+        "answers": ["Austin", "Houston", "Dallas", "San Antonio"],
+        "correct": 0,
+    },
+    {
+        "question": "Abraham Lincoln was born in which US state?",
+        "answers": ["Illinois", "Indiana", "Kentucky", "Ohio"],
+        "correct": 2,
+    },
+    {
+        "question": "Which US state has the most active volcanoes?",
+        "answers": ["California", "Washington", "Alaska", "Hawaii"],
+        "correct": 2,
+    },
+    {
+        "question": "Which US state is famously shaped like a mitten?",
+        "answers": ["Ohio", "Wisconsin", "Minnesota", "Michigan"],
+        "correct": 3,
+    },
+    {
+        "question": "Which US state is home to Silicon Valley?",
+        "answers": ["Washington", "Texas", "California", "Massachusetts"],
+        "correct": 2,
+    },
 ]
 
 gui_state = {"screen": "start", "current_question": 0,
