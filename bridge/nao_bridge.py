@@ -3,16 +3,16 @@ NAO Bridge - runs on the machine that can reach the robot (PC 1).
 Bridges proxy WebSocket commands to NAOqi calls.
 
 Usage:
-  set PROXY_URL=wss://your-proxy.onrender.com
-  set PROXY_TOKEN=<same token>
-  set NAO_IP=192.168.1.XXX
-  python nao_bridge.py
+  export PROXY_URL=wss://nao-proxy.onrender.com
+  export PROXY_TOKEN=<same token>
+  export NAO_IP=10.117.35.236
+  python3 nao_bridge.py
 """
 import os, json, time, sys
 import websocket  # pip install websocket-client
 import qi         # SoftBank's NAOqi Python SDK (already installed for your lab)
 
-PROXY_URL = os.environ.get("PROXY_URL", "wss://your-proxy.onrender.com").rstrip("/")
+PROXY_URL = os.environ.get("PROXY_URL", "wss://nao-proxy.onrender.com").rstrip("/")
 TOKEN     = os.environ.get("PROXY_TOKEN", "change-me-in-production")
 NAO_IP    = os.environ.get("NAO_IP", "192.168.1.100")
 
@@ -40,6 +40,12 @@ def execute(action: str, payload: dict):
         elif action == "nod":
             motion.angleInterpolation(
                 ["HeadPitch"], [[0.2, -0.2, 0.0]], [[0.5, 1.0, 1.5]], True)
+        elif action == "shake_head":
+            tts.say("^start(animations/Stand/Gestures/No_3)")
+        elif action == "wave":
+            tts.say("^start(animations/Stand/Gestures/Hey_1)")
+        elif action == "shrug":
+            tts.say("^start(animations/Stand/Gestures/IDontKnow_1)")
         elif action == "laugh":
             tts.say("^start(animations/Stand/Emotions/Positive/Laugh_1)")
         elif action == "led":
