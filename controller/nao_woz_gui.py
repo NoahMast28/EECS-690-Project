@@ -417,40 +417,125 @@ status_label = ttk.Label(conn, text="Not connected", foreground="red")
 status_label.grid(row=2, column=0, columnspan=4, sticky="w", padx=4, pady=(6, 0))
 
 # Pre-scripted speech
+
 sf = ttk.LabelFrame(root, text="Pre-scripted Utterances", padding=10)
 sf.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
+# General scripts
 prescripts = [
     ("Greeting", "Hello! My name is Nao."),
-    ("Intro to Exercise", "We will be doing a Trivia quiz together. We will take turns answering each question. Are you ready?"),
-    ("Question 1", "The first thing I am grateful for is this opportunity to interact with you."),
-    ("Answering 1", "Now why don't you share something you are grateful for."),
-    ("Question 2", "The second thing I am grateful for is the chance to interact with you."),
-    ("Answering 2", "What is another thing you are grateful for?"),
-    ("Question 3", "The third thing I am grateful for is the technology that lets us talk."),
-    ("Answering 3", "Please share one last thing you are grateful for."),
-    ("Question 4 (Mistake)", "The third thing I am grateful for is the technology that lets us talk."),
-    ("Apologizing (Serious)", "Please share one last thing you are grateful for."),
-    ("Apologizing (Humorous)", "Please share one last thing you are grateful for."),
-    ("Question 5", "The third thing I am grateful for is the technology that lets us talk."),
-    ("Answering 5", "Please share one last thing you are grateful for."),
-    ("Conclusion", "Thank you for doing the Trivia quiz with me, I had a lot of fun!"),
+    ("Intro to Exercise",
+     "We will be doing a trivia quiz together. "
+     "We will take turns answering each question. Are you ready?"),
+    ("Conclusion",
+     "Thank you for doing the trivia quiz with me. I had a lot of fun!"),
+    ("Humorous mistake",
+     "Opps! I made a mistake on that question... Looks like I just upgraded my error rate to expert level!"),
+    ("Neutral Mistake",
+     "I apologize for the mistake in that trivia question. Shall we continue with the game?")
 ]
+
 for i, (label, text) in enumerate(prescripts):
-    ttk.Button(sf, text=label, command=lambda t=text: say(t)).grid(
-        row=i // 3, column=i % 3, padx=5, pady=3, sticky="ew")
+    ttk.Button(
+        sf,
+        text=label,
+        command=lambda t=text: say(t)
+    ).grid(row=0, column=i, padx=5, pady=3, sticky="ew")
+
+# Question scripts
+
+qf_scripts = ttk.LabelFrame(
+    root,
+    text="Trivia Question Scripts",
+    padding=10
+)
+qf_scripts.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+
+# Track the currently selected question
+current_question_index = None
+
+
+def ask_question(index):
+    global current_question_index
+
+    current_question_index = index
+    say(QUESTIONS[index]["question"])
+
+
+def your_turn():
+    say("It's your turn! What do you think the answer is?")
+
+
+def my_turn():
+    if current_question_index is None:
+        say("Let's select a question first!")
+        return
+
+    question_data = QUESTIONS[current_question_index]
+
+    correct_answer = question_data["answers"][
+        question_data["correct"]
+    ]
+
+    say(f"It's my turn! I think the answer is {correct_answer}.")
+
+
+# Turn buttons
+turn_frame = ttk.Frame(qf_scripts)
+turn_frame.grid(row=0, column=0, columnspan=3, pady=5)
+
+ttk.Button(
+    turn_frame,
+    text="Your Turn",
+    command=your_turn
+).grid(row=0, column=0, padx=5)
+
+ttk.Button(
+    turn_frame,
+    text="My Turn",
+    command=my_turn
+).grid(row=0, column=1, padx=5)
+
+
+# ---------------- Question buttons (no scrolling) ----------------
+
+buttons_frame = ttk.Frame(qf_scripts)
+buttons_frame.grid(row=1, column=0, sticky="ew")
+
+for i, question_data in enumerate(QUESTIONS):
+    ttk.Button(
+        buttons_frame,
+        text=f"Question {i + 1}",
+        command=lambda index=i: ask_question(index)
+    ).grid(
+        row=i // 5,
+        column=i % 5,
+        padx=5,
+        pady=3,
+        sticky="ew"
+    )
+
+for col in range(5):
+    buttons_frame.columnconfigure(col, weight=1)
 
 # Dynamic speech
 df = ttk.LabelFrame(root, text="Dynamic Speech", padding=10)
-df.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+df.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+
 dyn_entry = ttk.Entry(df, width=50)
 dyn_entry.grid(row=0, column=0, padx=5, pady=5)
+
 dyn_entry.bind("<Return>", lambda e: say_dynamic())
-ttk.Button(df, text="Send", command=say_dynamic).grid(row=0, column=1, padx=5)
+
+ttk.Button(
+    df,
+    text="Send",
+    command=say_dynamic
+).grid(row=0, column=1, padx=5)
 
 # Social reactions
 rf = ttk.LabelFrame(root, text="Social Reactions", padding=10)
-rf.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+rf.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
 reactions = [
     ("Nod", nod),
     ("Shake Head", shake_head),
@@ -469,7 +554,7 @@ for i, (label, cmd) in enumerate(reactions):
 
 # Quiz control (dynamic)
 qf = ttk.LabelFrame(root, text="Quiz Control", padding=10)
-qf.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+qf.grid(row=5, column=0, padx=10, pady=5, sticky="ew")
 
 progress_label = ttk.Label(qf, text="Not connected", foreground="#666",
                            font=("TkDefaultFont", 9, "italic"))
